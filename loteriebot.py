@@ -5,7 +5,7 @@ Allows opting in and drawing,
 with the ability to lock the drawing manually
 """
 import os
-from random import randint
+from random import randint, choice
 
 import discord
 
@@ -56,12 +56,25 @@ async def on_message(message: discord.Message):
     ):
         user = await client.fetch_user(message.author.id)
 
-        drawers.append(message.author.id)
-        index = randint(0, len(entries) - 1)
-        while entries_id[index] == message.author.id:
-            index = randint(0, len(entries) - 1)
+        candidates = [
+            i for i, uid in enumerate(entries_id) if uid != message.author.id
+        ]
+        print(candidates)
+        if entries_id[0] == message.author.id:
+            await message.channel.send(
+                f"<@{message.author.id}> drawing failed: There is only you"
+            )
+            return
+        if not candidates:
+            await message.channel.send(
+                f"<@{message.author.id}> there is nobody left to draw"
+            )
+            return
 
+        index = choice(candidates)
         entries_id.pop(index)
+
+        drawers.append(message.author.id)
 
         await user.send(
             f"You have drawn ||**{entries.pop(index)}**||, remember to keep it a secret"
