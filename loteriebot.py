@@ -4,6 +4,7 @@ Simple loterie bot
 Allows opting in and drawing,
 with the ability to lock the drawing manually
 """
+
 import os
 from random import randint, choice
 
@@ -18,7 +19,7 @@ client = discord.Client(intents=intents)
 entries = []
 entries_id = []
 drawers = []
-can_draw = False #pylint: disable=invalid-name
+can_draw = False  # pylint: disable=invalid-name
 
 
 @client.event
@@ -34,7 +35,7 @@ async def on_message(message: discord.Message):
     """
     Instructions called on every message
     """
-    global can_draw #pylint: disable=global-statement
+    global can_draw  # pylint: disable=global-statement
     # Here to avoid any risk of infinite loop while developpment,
     # if the recieved message is from yourself, don't do anything
     if message.author == client.user:
@@ -46,7 +47,9 @@ async def on_message(message: discord.Message):
     ):
         entries.append(message.author.name)
         entries_id.append(message.author.id)
-        await message.channel.send(f"<@{message.author.id}> has been entered in the draw")
+        await message.channel.send(
+            f"<@{message.author.id}> has been entered in the draw"
+        )
         print(entries)
 
     if (
@@ -56,11 +59,9 @@ async def on_message(message: discord.Message):
     ):
         user = await client.fetch_user(message.author.id)
 
-        candidates = [
-            i for i, uid in enumerate(entries_id) if uid != message.author.id
-        ]
+        candidates = [i for i, uid in enumerate(entries_id) if uid != message.author.id]
         print(candidates)
-        if entries_id[0] == message.author.id:
+        if not candidates and entries_id[0] == message.author.id:
             await message.channel.send(
                 f"<@{message.author.id}> drawing failed: There is only you"
             )
@@ -81,22 +82,19 @@ async def on_message(message: discord.Message):
         )
         await message.channel.send(f"<@{message.author.id}> has drawn")
 
-
-    if (
-        message.content.casefold() == "!unlock".casefold()
-        and message.author.id == int(os.environ.get("DEV_ID"))
+    if message.content.casefold() == "!unlock".casefold() and message.author.id == int(
+        os.environ.get("DEV_ID")
     ):
         can_draw = True
         await message.channel.send("You may now begin drawing")
 
-
-    if (
-        message.content.casefold() == "!lock".casefold()
-        and message.author.id == int(os.environ.get("DEV_ID"))
+    if message.content.casefold() == "!lock".casefold() and message.author.id == int(
+        os.environ.get("DEV_ID")
     ):
         can_draw = False
-        await message.channel.send("The loterie has been closed, you may not draw anymore")
-
+        await message.channel.send(
+            "The loterie has been closed, you may not draw anymore"
+        )
 
 
 client.run(os.environ.get("DISCORD_KEY"))
