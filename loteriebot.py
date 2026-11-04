@@ -61,7 +61,7 @@ async def on_message(message: discord.Message):
 
         candidates = [i for i, uid in enumerate(entries_id) if uid != message.author.id]
         print(candidates)
-        if entries and not candidates:
+        if not entries and not candidates:
             await message.channel.send(
                 f"<@{message.author.id}> there is nobody left to draw"
             )
